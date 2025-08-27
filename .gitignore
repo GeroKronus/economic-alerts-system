@@ -36,5 +36,10 @@ npm-debug.log*
 
 # Optional eslint cache
 .eslintcache.env
-*.sqlite
+# Excluir SQLites temporários, mas manter a Tabela.sqlite principal
+calendario_*.sqlite
+Tabela2.sqlite
+app.sqlite
+*.db
+!Tabela.sqlite
 node_modules/
