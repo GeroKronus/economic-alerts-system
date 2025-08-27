@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "src/server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/cron-alerts",
+      "dest": "api/cron-alerts.js"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "src/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "src/server.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "TZ": "America/Sao_Paulo"
+  },
+  "functions": {
+    "src/server.js": {
+      "maxDuration": 60
+    },
+    "api/cron-alerts.js": {
+      "maxDuration": 60
+    }
+  }
+}

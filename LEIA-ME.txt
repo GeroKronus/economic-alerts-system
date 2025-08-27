@@ -1,0 +1,53 @@
+========================================
+  SISTEMA DE ALERTAS ECONOMICOS
+========================================
+
+🚀 COMO USAR:
+
+1. Execute o arquivo "run.bat"
+2. Aguarde o servidor iniciar
+3. Acesse: http://localhost:9004
+
+📊 FUNCIONALIDADES:
+
+✅ Dashboard Web - Visualiza eventos econômicos
+✅ Bot Telegram - Recebe alertas automáticos  
+✅ Scraper Investing.com - Dados econômicos reais
+✅ Alertas Programados - Notificações antes dos eventos
+
+📋 EVENTOS MONITORADOS:
+
+• Core Retail Sales (MoM)
+• Export Price Index (YoY/MoM)
+• Import Price Index (YoY/MoM)
+• NY Empire State Manufacturing
+• Industrial Production (YoY/MoM)
+• Business Inventories (MoM)
+• Capacity Utilization Rate
+• Manufacturing Production (MoM)
+
+⚙️ CONFIGURAÇÃO:
+
+• Porta: 9002 (configurável no arquivo .env)
+• Telegram: Configurado e ativo
+• Fuso Horário: Eastern Time (ET)
+• Atualização: Automática a cada hora
+
+🔧 ARQUIVOS IMPORTANTES:
+
+• run.bat - Executar o sistema
+• .env - Configurações do sistema
+• src/server.js - Servidor principal
+• src/scraper.js - Coleta de dados
+• src/telegram.js - Bot do Telegram
+
+📞 COMANDOS TELEGRAM:
+
+/start - Iniciar bot
+/proximos - Ver próximos eventos  
+/alertas - Configurar alertas
+/ajuda - Lista de comandos
+
+========================================
+  Desenvolvido com Claude Code
+========================================

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoEconomicAlerts - Sistema de Alertas</title>
+    <link rel="stylesheet" href="style-new.css">
+</head>
+<body>
+    <!-- Layout Principal Moderno -->
+    <div class="app-container">
+        <!-- Header Compacto -->
+        <header class="modern-header">
+            <div class="header-content">
+                <h1>📊 CryptoEconomicAlerts</h1>
+                <div class="status-indicators">
+                    <span class="status online">🤖 Bot Ativo</span>
+                    <span class="status online">⏰ Scheduler</span>
+                    <span class="status online">📊 SQLite</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navegação por Abas -->
+        <nav class="tab-navigation">
+            <button class="tab-btn active" onclick="switchTab('calendar')">
+                📊 Calendário Econômico
+            </button>
+            <button class="tab-btn" onclick="switchTab('alerts')">
+                ⚙️ Configurar Alertas
+            </button>
+            <button class="tab-btn" onclick="switchTab('data')">
+                📋 Gerenciar Dados
+            </button>
+            <button class="tab-btn" onclick="switchTab('logs')">
+                📝 Histórico
+            </button>
+        </nav>
+
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            
+            <!-- Aba: Calendário Econômico -->
+            <div id="calendar-tab" class="tab-content active">
+                <div class="content-header">
+                    <h2>📊 Calendário Econômico - Dados da Tabela.sqlite</h2>
+                    <div class="quick-actions">
+                        <button class="btn-small btn-primary" onclick="reloadSQLiteData()">
+                            🔄 Recarregar
+                        </button>
+                        <button class="btn-small btn-secondary" onclick="checkSQLiteStatus()">
+                            📋 Status
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filtros Compactos -->
+                <div class="filters-bar">
+                    <div class="filter-group">
+                        <span>Filtrar por impacto:</span>
+                        <label class="toggle-filter">
+                            <input type="checkbox" id="filterHigh" checked onchange="filterEventsByImpact()">
+                            <span class="filter-badge high">⭐⭐⭐ Alto</span>
+                        </label>
+                        <label class="toggle-filter">
+                            <input type="checkbox" id="filterMedium" checked onchange="filterEventsByImpact()">
+                            <span class="filter-badge medium">⭐⭐ Médio</span>
+                        </label>
+                        <label class="toggle-filter">
+                            <input type="checkbox" id="filterLow" checked onchange="filterEventsByImpact()">
+                            <span class="filter-badge low">⭐ Baixo</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Calendário Responsivo -->
+                <div class="calendar-container">
+                    <div id="calendar-events" class="events-calendar">
+                        <div class="loading-state">
+                            <div class="spinner"></div>
+                            <p>Carregando eventos da Tabela.sqlite...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aba: Configurar Alertas -->
+            <div id="alerts-tab" class="tab-content">
+                <div class="content-header">
+                    <h2>⚙️ Configuração de Alertas</h2>
+                </div>
+
+                <div class="alert-setup">
+                    <div class="setup-card">
+                        <h3>🔔 Alertas por Categoria</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Categorias de Impacto:</label>
+                                <div class="checkbox-grid">
+                                    <label class="checkbox-modern">
+                                        <input type="checkbox" id="highImpact" checked>
+                                        <span class="checkbox-custom"></span>
+                                        <span class="checkbox-text">🔴 Alto Impacto</span>
+                                    </label>
+                                    <label class="checkbox-modern">
+                                        <input type="checkbox" id="mediumImpact" checked>
+                                        <span class="checkbox-custom"></span>
+                                        <span class="checkbox-text">🟡 Médio Impacto</span>
+                                    </label>
+                                    <label class="checkbox-modern">
+                                        <input type="checkbox" id="lowImpact">
+                                        <span class="checkbox-custom"></span>
+                                        <span class="checkbox-text">⚪ Baixo Impacto</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="alertTime">🕐 Antecedência:</label>
+                                <select id="alertTime" class="select-modern">
+                                    <option value="0.5">30 minutos antes</option>
+                                    <option value="1" selected>1 hora antes</option>
+                                    <option value="2">2 horas antes</option>
+                                    <option value="12">12 horas antes</option>
+                                    <option value="24">1 dia antes</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="btn-success" onclick="saveAlertConfig()">
+                                💾 Salvar Configuração
+                            </button>
+                            <button class="btn-primary" onclick="testAlert()">
+                                🧪 Testar Alerta
+                            </button>
+                            <button class="btn-danger" onclick="clearAllAlerts()">
+                                🗑️ Limpar Alertas
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="setup-card">
+                        <h3>🔔 Alertas Ativos</h3>
+                        <div id="alertsList" class="alerts-display">
+                            <div class="loading-state">Carregando alertas...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aba: Gerenciar Dados -->
+            <div id="data-tab" class="tab-content">
+                <div class="content-header">
+                    <h2>📋 Gerenciamento de Dados SQLite</h2>
+                </div>
+
+                <div class="data-management">
+                    <div class="data-info">
+                        <div class="info-card">
+                            <h3>📊 Fonte de Dados</h3>
+                            <p>Sistema configurado para ler dados exclusivamente do arquivo <code>Tabela.sqlite</code></p>
+                            <div class="file-path">
+                                📁 Localização: <code>D:\Claude Code\Calendar\Tabela.sqlite</code>
+                            </div>
+                        </div>
+
+                        <div class="data-actions">
+                            <button class="btn-large btn-primary" onclick="reloadSQLiteData()">
+                                🔄 Recarregar Dados da Tabela.sqlite
+                            </button>
+                            <button class="btn-large btn-secondary" onclick="checkSQLiteStatus()">
+                                📋 Verificar Status da Tabela.sqlite
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="data-stats" id="dataStats">
+                        <div class="stat-card">
+                            <div class="stat-number">—</div>
+                            <div class="stat-label">Total de Eventos</div>
+                        </div>
+                        <div class="stat-card high">
+                            <div class="stat-number">—</div>
+                            <div class="stat-label">Alto Impacto</div>
+                        </div>
+                        <div class="stat-card medium">
+                            <div class="stat-number">—</div>
+                            <div class="stat-label">Médio Impacto</div>
+                        </div>
+                        <div class="stat-card low">
+                            <div class="stat-number">—</div>
+                            <div class="stat-label">Baixo Impacto</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aba: Histórico -->
+            <div id="logs-tab" class="tab-content">
+                <div class="content-header">
+                    <h2>📝 Histórico de Mensagens</h2>
+                </div>
+
+                <div class="logs-container">
+                    <div id="logsList" class="logs-modern">
+                        <div class="loading-state">Carregando histórico...</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script-new.js"></script>
+</body>
+</html>

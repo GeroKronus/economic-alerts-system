@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoEconomicAlerts - Calendário Econômico</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .filters {
+            background: #f8f9fa;
+            padding: 10px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .filter-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .filter-item input[type="checkbox"] {
+            margin-right: 5px;
+        }
+        
+        .impact-high { color: #d9534f; }
+        .impact-medium { color: #f0ad4e; }
+        .impact-low { color: #5bc0de; }
+        
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        .calendar-table th {
+            background: #f1f3f4;
+            padding: 8px 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
+            font-size: 12px;
+        }
+        
+        .calendar-table td {
+            padding: 6px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+        
+        .calendar-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .time-col { width: 60px; }
+        .currency-col { width: 60px; text-align: center; }
+        .impact-col { width: 50px; text-align: center; }
+        .event-col { width: 300px; }
+        .value-col { width: 80px; text-align: right; }
+        
+        .date-separator {
+            background: #e9ecef;
+            font-weight: bold;
+            text-align: center;
+            padding: 8px;
+            color: #495057;
+        }
+        
+        .currency-flag {
+            width: 20px;
+            height: 14px;
+            display: inline-block;
+            background: #ddd;
+            margin-right: 5px;
+            border-radius: 2px;
+        }
+        
+        .impact-stars {
+            color: #ffc107;
+        }
+        
+        .value-positive { color: #28a745; font-weight: 600; }
+        .value-negative { color: #dc3545; font-weight: 600; }
+        .value-neutral { color: #6c757d; }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .reload-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .reload-btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Calendário Econômico</h1>
+            <p>Dados da Tabela.sqlite - Atualizado em tempo real</p>
+        </div>
+        
+        <div class="filters">
+            <span class="filter-label">Filtros:</span>
+            <label class="filter-item">
+                <input type="checkbox" id="filterHigh" checked onchange="filterEvents()">
+                <span class="impact-high">⭐⭐⭐ Alto</span>
+            </label>
+            <label class="filter-item">
+                <input type="checkbox" id="filterMedium" checked onchange="filterEvents()">
+                <span class="impact-medium">⭐⭐ Médio</span>
+            </label>
+            <label class="filter-item">
+                <input type="checkbox" id="filterLow" checked onchange="filterEvents()">
+                <span class="impact-low">⭐ Baixo</span>
+            </label>
+            <button class="reload-btn" onclick="reloadEvents()">🔄 Recarregar</button>
+        </div>
+        
+        <table class="calendar-table">
+            <thead>
+                <tr>
+                    <th class="time-col">Horário</th>
+                    <th class="currency-col">Moeda</th>
+                    <th class="impact-col">Imp.</th>
+                    <th class="event-col">Evento</th>
+                    <th class="value-col">Atual</th>
+                    <th class="value-col">Previsão</th>
+                    <th class="value-col">Anterior</th>
+                </tr>
+            </thead>
+            <tbody id="eventsTable">
+                <tr>
+                    <td colspan="7" class="loading">
+                        Carregando eventos da Tabela.sqlite...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <script>
+        let allEvents = [];
+        
+        async function loadEvents() {
+            try {
+                const response = await fetch('/api/all-events');
+                const data = await response.json();
+                
+                if (data.success && data.events) {
+                    allEvents = data.events;
+                    renderEvents();
+                } else {
+                    document.getElementById('eventsTable').innerHTML = '<tr><td colspan="7" class="loading">Erro ao carregar eventos</td></tr>';
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('eventsTable').innerHTML = '<tr><td colspan="7" class="loading">Erro de conexão</td></tr>';
+            }
+        }
+        
+        function renderEvents() {
+            const tbody = document.getElementById('eventsTable');
+            const showHigh = document.getElementById('filterHigh').checked;
+            const showMedium = document.getElementById('filterMedium').checked;
+            const showLow = document.getElementById('filterLow').checked;
+            
+            // Filtrar eventos
+            const filteredEvents = allEvents.filter(event => {
+                if (event.impact === 'high' && showHigh) return true;
+                if (event.impact === 'medium' && showMedium) return true;
+                if (event.impact === 'low' && showLow) return true;
+                return false;
+            });
+            
+            // Agrupar por data
+            const eventsByDate = {};
+            filteredEvents.forEach(event => {
+                const date = new Date(event.date);
+                const dateKey = date.toISOString().split('T')[0];
+                if (!eventsByDate[dateKey]) {
+                    eventsByDate[dateKey] = [];
+                }
+                eventsByDate[dateKey].push(event);
+            });
+            
+            let html = '';
+            
+            Object.entries(eventsByDate).forEach(([dateKey, events]) => {
+                // Separador de data
+                const date = new Date(dateKey);
+                const dateStr = date.toLocaleDateString('pt-BR', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                html += `<tr><td colspan="7" class="date-separator">${dateStr}</td></tr>`;
+                
+                // Eventos do dia
+                events.forEach(event => {
+                    const eventTime = new Date(event.date);
+                    const timeStr = eventTime.toLocaleTimeString('pt-BR', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    const impactStars = event.impact === 'high' ? '⭐⭐⭐' :
+                                       event.impact === 'medium' ? '⭐⭐' : '⭐';
+                    
+                    const impactClass = event.impact === 'high' ? 'impact-high' :
+                                       event.impact === 'medium' ? 'impact-medium' : 'impact-low';
+                    
+                    html += `
+                        <tr>
+                            <td class="time-col">${timeStr}</td>
+                            <td class="currency-col">
+                                <span class="currency-flag"></span>USD
+                            </td>
+                            <td class="impact-col">
+                                <span class="${impactClass} impact-stars">${impactStars}</span>
+                            </td>
+                            <td class="event-col">${event.name}</td>
+                            <td class="value-col value-neutral">${event.actual_value || '—'}</td>
+                            <td class="value-col value-neutral">${event.forecast_value || '—'}</td>
+                            <td class="value-col value-neutral">${event.previous_value || '—'}</td>
+                        </tr>
+                    `;
+                });
+            });
+            
+            tbody.innerHTML = html || '<tr><td colspan="7" class="loading">Nenhum evento encontrado</td></tr>';
+        }
+        
+        function filterEvents() {
+            renderEvents();
+        }
+        
+        function reloadEvents() {
+            document.getElementById('eventsTable').innerHTML = '<tr><td colspan="7" class="loading">Recarregando...</td></tr>';
+            loadEvents();
+        }
+        
+        // Carregar ao iniciar
+        document.addEventListener('DOMContentLoaded', loadEvents);
+        
+        // Recarregar a cada 30 segundos
+        setInterval(loadEvents, 30000);
+    </script>
+</body>
+</html>

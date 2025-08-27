@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoEconomicAlerts - Calendário Econômico</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            height: auto;
+            overflow: visible;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+        
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-success, .btn-info, .btn-warning {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .btn-success { background: #28a745; color: white; }
+        .btn-info { background: #17a2b8; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        
+        .tabs {
+            background: #f8f9fa;
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+        
+        .tab-btn.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+            background: white;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .filters {
+            background: #f8f9fa;
+            padding: 10px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .filter-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .filter-item input[type="checkbox"] {
+            margin-right: 5px;
+        }
+        
+        .impact-high { color: #d9534f; }
+        .impact-medium { color: #f0ad4e; }
+        .impact-low { color: #5bc0de; }
+        
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            height: auto !important;
+            max-height: none !important;
+        }
+        
+        .calendar-table th {
+            background: #f1f3f4;
+            padding: 8px 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
+            font-size: 12px;
+        }
+        
+        .calendar-table td {
+            padding: 6px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+        
+        .calendar-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Debug: garantir que todas as linhas sejam visíveis */
+        .calendar-table tbody tr {
+            display: table-row !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            height: auto !important;
+        }
+        
+        .sub-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .sub-header h2 {
+            margin: 0;
+            color: #333;
+            font-size: 20px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .alert-setup {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .setup-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .setup-card h3 {
+            margin: 0 0 20px 0;
+            color: #333;
+            font-size: 18px;
+        }
+        
+        .form-grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .checkbox-grid {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .checkbox-modern {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .checkbox-modern:hover {
+            background: #f8f9fa;
+        }
+        
+        .checkbox-custom {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ddd;
+            border-radius: 3px;
+            position: relative;
+        }
+        
+        .checkbox-modern input[type="checkbox"] {
+            display: none;
+        }
+        
+        .checkbox-modern input[type="checkbox"]:checked + .checkbox-custom {
+            background: #007bff;
+            border-color: #007bff;
+        }
+        
+        .checkbox-modern input[type="checkbox"]:checked + .checkbox-custom::after {
+            content: '✓';
+            color: white;
+            position: absolute;
+            top: -2px;
+            left: 2px;
+            font-size: 14px;
+        }
+        
+        .select-modern, .input-modern {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .alerts-display {
+            min-height: 200px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .loading-state {
+            text-align: center;
+            color: #666;
+        }
+        
+        .alerts-group {
+            margin-bottom: 20px;
+        }
+        
+        .alerts-group h4 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .alert-item {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .form-help {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .alerts-group {
+            margin-bottom: 20px;
+        }
+        
+        .alerts-group h4 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .alert-item {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .time-col { width: 60px; }
+        .currency-col { width: 60px; text-align: center; }
+        .impact-col { width: 50px; text-align: center; }
+        .event-col { width: 300px; }
+        .value-col { width: 80px; text-align: right; }
+        
+        .date-separator {
+            background: #e9ecef;
+            font-weight: bold;
+            text-align: center;
+            padding: 8px;
+            color: #495057;
+        }
+        
+        .currency-flag {
+            width: 20px;
+            height: 14px;
+            display: inline-block;
+            background: #ddd;
+            margin-right: 5px;
+            border-radius: 2px;
+        }
+        
+        .impact-stars {
+            color: #ffc107;
+        }
+        
+        .value-positive { color: #28a745; font-weight: 600; }
+        .value-negative { color: #dc3545; font-weight: 600; }
+        .value-neutral { color: #6c757d; }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .reload-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .reload-btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 CryptoEconomicAlerts</h1>
+            <div class="header-buttons">
+                <button class="btn-success">🤖 Bot Ativo</button>
+                <button class="btn-info">⏰ Scheduler</button>
+                <button class="btn-warning">📋 SQLite</button>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('calendar')">📅 Calendário Econômico</button>
+            <button class="tab-btn" onclick="showTab('alerts')">⚠️ Configurar Alertas</button>
+            <button class="tab-btn" onclick="showTab('data')">📊 Gerenciar Dados</button>
+            <button class="tab-btn" onclick="showTab('history')">📜 Histórico</button>
+        </div>
+        
+        <!-- Aba do Calendário -->
+        <div id="calendar-tab" class="tab-content active">
+            <div class="sub-header">
+                <h2>📅 Calendário Econômico - Dados da Tabela.sqlite</h2>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="reloadEvents()">🔄 Recarregar</button>
+                    <button class="btn btn-secondary">📊 Status</button>
+                </div>
+            </div>
+            
+            <div class="filters">
+                <span class="filter-label">Filtrar por impacto:</span>
+                <label class="filter-item">
+                    <input type="checkbox" id="filterHigh" checked onchange="filterEvents()">
+                    <span class="impact-high">⭐⭐⭐ Alto</span>
+                </label>
+                <label class="filter-item">
+                    <input type="checkbox" id="filterMedium" checked onchange="filterEvents()">
+                    <span class="impact-medium">⭐⭐ Médio</span>
+                </label>
+                <label class="filter-item">
+                    <input type="checkbox" id="filterLow" checked onchange="filterEvents()">
+                    <span class="impact-low">⭐ Baixo</span>
+                </label>
+                
+                <span class="filter-label" style="margin-left: 20px;">Fuso Horário:</span>
+                <select id="timezoneOffset" onchange="saveTimezone()" style="margin-right: 10px;">
+                    <option value="-3">GMT-3 (Brasil)</option>
+                    <option value="-4">GMT-4</option>
+                    <option value="-5">GMT-5 (EST)</option>
+                    <option value="-6">GMT-6</option>
+                    <option value="0">GMT+0 (UTC)</option>
+                    <option value="+1">GMT+1</option>
+                    <option value="+2">GMT+2</option>
+                </select>
+            </div>
+            
+            <div style="overflow: visible; height: auto; max-height: none;">
+                <table class="calendar-table">
+                    <thead>
+                        <tr>
+                            <th class="time-col">Horário</th>
+                            <th class="currency-col">Moeda</th>
+                            <th class="impact-col">Imp.</th>
+                            <th class="event-col">Evento</th>
+                            <th class="value-col">Atual</th>
+                            <th class="value-col">Previsão</th>
+                            <th class="value-col">Anterior</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eventsTable">
+                        <tr>
+                            <td colspan="7" class="loading">
+                                Carregando eventos da Tabela.sqlite...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Aba de Configurar Alertas -->
+        <div id="alerts-tab" class="tab-content">
+            <div class="sub-header">
+                <h2>⚙️ Configuração de Alertas</h2>
+            </div>
+
+            <div class="alert-setup">
+                <div class="setup-card">
+                    <h3>🔔 Alertas por Categoria</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Categorias de Impacto:</label>
+                            <div class="checkbox-grid">
+                                <label class="checkbox-modern">
+                                    <input type="checkbox" id="highImpact" checked>
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-text">🔴 Alto Impacto</span>
+                                </label>
+                                <label class="checkbox-modern">
+                                    <input type="checkbox" id="mediumImpact" checked>
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-text">🟡 Médio Impacto</span>
+                                </label>
+                                <label class="checkbox-modern">
+                                    <input type="checkbox" id="lowImpact">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-text">⚪ Baixo Impacto</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="alertTime">🕐 Antecedência:</label>
+                            <select id="alertTime" class="select-modern">
+                                <option value="0.0167">1 minuto antes</option>
+                                <option value="0.0333">2 minutos antes</option>
+                                <option value="0.0833">5 minutos antes</option>
+                                <option value="0.1667">10 minutos antes</option>
+                                <option value="0.25">15 minutos antes</option>
+                                <option value="0.5">30 minutos antes</option>
+                                <option value="1" selected>1 hora antes</option>
+                                <option value="2">2 horas antes</option>
+                                <option value="12">12 horas antes</option>
+                                <option value="24">1 dia antes</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>💬 Chat ID do Telegram:</label>
+                            <input type="text" id="chatId" class="input-modern" 
+                                   value="7336659270" 
+                                   placeholder="Digite o Chat ID do Telegram">
+                            <small class="form-help">Chat ID onde os alertas serão enviados</small>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-success" onclick="saveAlertConfig()">
+                            💾 Salvar Configuração
+                        </button>
+                        <button class="btn btn-info" onclick="testAlert()">
+                            🧪 Testar Alerta
+                        </button>
+                        <button class="btn btn-warning" onclick="clearAllAlerts()">
+                            🗑️ Limpar Alertas
+                        </button>
+                    </div>
+                </div>
+
+                <div class="setup-card">
+                    <h3>🔔 Alertas Ativos</h3>
+                    <div id="alertsList" class="alerts-display">
+                        <div class="loading-state">Carregando alertas...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Aba de Gerenciar Dados -->
+        <div id="data-tab" class="tab-content">
+            <div class="sub-header">
+                <h2>📊 Gerenciar Dados</h2>
+            </div>
+            <p>Importe e gerencie dados econômicos da Tabela.sqlite.</p>
+            <p>🔧 <em>Funcionalidade em desenvolvimento...</em></p>
+        </div>
+        
+        <!-- Aba de Histórico -->
+        <div id="history-tab" class="tab-content">
+            <div class="sub-header">
+                <h2>📜 Histórico</h2>
+            </div>
+            <p>Visualize o histórico de alertas enviados e eventos processados.</p>
+            <p>🔧 <em>Funcionalidade em desenvolvimento...</em></p>
+        </div>
+    </div>
+    
+    <script>
+        let allEvents = [];
+        
+        async function loadEvents() {
+            try {
+                const response = await fetch('/api/all-events');
+                const data = await response.json();
+                
+                if (data.success && data.events) {
+                    allEvents = data.events;
+                    renderEvents();
+                } else {
+                    document.getElementById('eventsTable').innerHTML = '<tr><td colspan="7" class="loading">Erro ao carregar eventos</td></tr>';
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('eventsTable').innerHTML = '<tr><td colspan="7" class="loading">Erro de conexão</td></tr>';
+            }
+        }
+        
+        function renderEvents() {
+            const tbody = document.getElementById('eventsTable');
+            const showHigh = document.getElementById('filterHigh').checked;
+            const showMedium = document.getElementById('filterMedium').checked;
+            const showLow = document.getElementById('filterLow').checked;
+            
+            // Filtrar eventos (mesma lógica de antes, mas mais simples)
+            const filteredEvents = allEvents.filter(event => {
+                if (event.impact === 'high' && showHigh) return true;
+                if (event.impact === 'medium' && showMedium) return true;
+                if (event.impact === 'low' && showLow) return true;
+                return false;
+            });
+            
+            // Agrupar por data BRASILEIRA (não UTC)
+            const eventsByDate = {};
+            filteredEvents.forEach(event => {
+                // Usar a data brasileira para agrupamento
+                const dateKey = event.brasil_date || event.date.split('T')[0];
+                if (!eventsByDate[dateKey]) {
+                    eventsByDate[dateKey] = [];
+                }
+                eventsByDate[dateKey].push(event);
+            });
+            
+            // Ordenar datas
+            const sortedDates = Object.keys(eventsByDate).sort().map(date => [date, eventsByDate[date]]);
+            
+            let html = '';
+            
+            // Renderizar cada data (USANDO A MESMA LÓGICA QUE FUNCIONOU)
+            sortedDates.forEach(([dateKey, events]) => {
+                // Separador de data
+                const date = new Date(dateKey + 'T00:00:00');
+                const dateStr = date.toLocaleDateString('pt-BR', {
+                    weekday: 'long',
+                    year: 'numeric', 
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                html += `<tr><td colspan="7" class="date-separator">${dateStr} (${events.length} eventos)</td></tr>`;
+                
+                // Usar eventos na ordem que vem da API (já ordenados por data)
+                console.log('Eventos do dia ' + dateKey + ' (ordem da API):', events.length);
+                
+                // Eventos do dia (ORDEM DA API - JÁ ORDENADOS)
+                events.forEach((event, i) => {
+                    // Horário já está correto para o Brasil (convertido na importação)
+                    const timeStr = event.brasil_hour ? event.brasil_hour.substring(0, 5) : 
+                                   new Date(event.date).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+                    
+                    const impactStars = event.impact === 'high' ? '⭐⭐⭐' :
+                                       event.impact === 'medium' ? '⭐⭐' : '⭐';
+                    
+                    const impactClass = event.impact === 'high' ? 'impact-high' :
+                                       event.impact === 'medium' ? 'impact-medium' : 'impact-low';
+                    
+                    html += `<tr>
+                        <td class="time-col">${timeStr}</td>
+                        <td class="currency-col">USD</td>
+                        <td class="impact-col"><span class="${impactClass}">${impactStars}</span></td>
+                        <td class="event-col">${event.name}</td>
+                        <td class="value-col">${event.actual_value || '—'}</td>
+                        <td class="value-col">${event.forecast_value || '—'}</td>
+                        <td class="value-col">${event.previous_value || '—'}</td>
+                    </tr>`;
+                });
+            });
+            
+            tbody.innerHTML = html || '<tr><td colspan="7" class="loading">Nenhum evento encontrado</td></tr>';
+        }
+        
+        function filterEvents() {
+            renderEvents();
+        }
+        
+        function reloadEvents() {
+            document.getElementById('eventsTable').innerHTML = '<tr><td colspan="7" class="loading">Recarregando...</td></tr>';
+            loadEvents();
+        }
+        
+        // Funções de configuração de fuso horário
+        function saveTimezone() {
+            const timezone = document.getElementById('timezoneOffset').value;
+            localStorage.setItem('userTimezone', timezone);
+            console.log('Fuso horário salvo:', timezone);
+            
+            // Atualizar alertas no servidor
+            fetch('/api/update-timezone', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ timezoneOffset: parseInt(timezone) })
+            });
+        }
+        
+        function loadTimezone() {
+            const savedTimezone = localStorage.getItem('userTimezone') || '-3';
+            document.getElementById('timezoneOffset').value = savedTimezone;
+            return parseInt(savedTimezone);
+        }
+        
+        // Carregar ao iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            // Garantir que todos os filtros estejam habilitados
+            document.getElementById('filterHigh').checked = true;
+            document.getElementById('filterMedium').checked = true;
+            document.getElementById('filterLow').checked = true;
+            
+            // Carregar fuso horário salvo
+            loadTimezone();
+            
+            loadEvents();
+        });
+        
+        // Função para trocar abas
+        function showTab(tabName) {
+            // Esconder todas as abas
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remover active dos botões
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostrar aba selecionada
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Ativar botão correspondente
+            event.target.classList.add('active');
+            
+            // Carregar dados específicos da aba
+            if (tabName === 'alerts') {
+                loadAlerts();
+            }
+        }
+        
+        // Recarregar a cada 30 segundos
+        setInterval(loadEvents, 30000);
+        
+        // Função para testar alerta
+        async function testAlert() {
+            const chatId = document.getElementById('chatId').value.trim();
+            if (!chatId) {
+                showMessage('⚠️ Por favor, insira o Chat ID do Telegram', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/test-alert', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: chatId })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('✅ Alerta de teste enviado! Verifique seu Telegram.', 'success');
+                } else {
+                    showMessage(`❌ Erro: ${data.error || 'Falha ao enviar alerta'}`, 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Erro de conexão ao enviar alerta de teste.', 'error');
+            }
+        }
+        
+        // Função para salvar configuração de alertas
+        async function saveAlertConfig() {
+            try {
+                const alertTime = document.getElementById('alertTime').value;
+                const highImpact = document.getElementById('highImpact').checked;
+                const mediumImpact = document.getElementById('mediumImpact').checked;
+                const lowImpact = document.getElementById('lowImpact').checked;
+                const chatId = document.getElementById('chatId').value.trim();
+                
+                if (!chatId) {
+                    showMessage('⚠️ Por favor, insira o Chat ID do Telegram', 'error');
+                    return;
+                }
+                
+                if (!highImpact && !mediumImpact && !lowImpact) {
+                    showMessage('⚠️ Selecione pelo menos um nível de impacto', 'error');
+                    return;
+                }
+                
+                const impactLevels = [];
+                if (highImpact) impactLevels.push('high');
+                if (mediumImpact) impactLevels.push('medium');
+                if (lowImpact) impactLevels.push('low');
+                
+                const response = await fetch('/api/create-impact-alert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        impact_levels: impactLevels,
+                        hours_before: parseFloat(alertTime),
+                        chat_id: chatId
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const levels = [];
+                    if (highImpact) levels.push('alto impacto');
+                    if (mediumImpact) levels.push('médio impacto');
+                    if (lowImpact) levels.push('baixo impacto');
+                    
+                    // Formatear tempo para exibição
+                    const timeFloat = parseFloat(alertTime);
+                    let timeText;
+                    if (timeFloat < 1) {
+                        const minutes = Math.round(timeFloat * 60);
+                        timeText = `${minutes} minuto${minutes > 1 ? 's' : ''}`;
+                    } else {
+                        timeText = `${timeFloat}h`;
+                    }
+                    
+                    showMessage(
+                        `✅ Alertas configurados! Eventos de ${levels.join(' e ')} (${timeText} antes)`,
+                        'success'
+                    );
+                    loadAlerts(); // Recarregar lista de alertas
+                } else {
+                    showMessage(`❌ Erro: ${data.error || 'Falha ao criar alertas'}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao salvar configuração:', error);
+                showMessage('❌ Erro ao salvar configuração', 'error');
+            }
+        }
+        
+        // Função para limpar todos os alertas
+        async function clearAllAlerts() {
+            const confirmation = confirm('⚠️ Tem certeza que deseja remover TODOS os alertas configurados?');
+            
+            if (!confirmation) return;
+            
+            try {
+                const response = await fetch('/api/clear-alerts', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(`✅ ${data.deletedCount || 0} alertas removidos com sucesso!`, 'success');
+                    loadAlerts(); // Recarregar lista de alertas
+                } else {
+                    showMessage(`❌ Erro: ${data.error || 'Falha ao remover alertas'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao limpar alertas:', error);
+                showMessage('❌ Erro de conexão ao limpar alertas.', 'error');
+            }
+        }
+        
+        // Função para carregar alertas
+        async function loadAlerts() {
+            try {
+                const response = await fetch('/api/alerts');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const data = await response.json();
+                
+                const container = document.getElementById('alertsList');
+                
+                const hasImpactAlerts = data.impactAlerts && data.impactAlerts.length > 0;
+                const hasRegularAlerts = data.alerts && data.alerts.length > 0;
+                
+                if (!hasImpactAlerts && !hasRegularAlerts) {
+                    container.innerHTML = '<div class="loading-state">Nenhum alerta configurado</div>';
+                    return;
+                }
+                
+                let html = '';
+                
+                if (hasImpactAlerts) {
+                    html += '<div class="alerts-group">';
+                    html += '<h4>🔔 Alertas por Categoria de Impacto</h4>';
+                    
+                    data.impactAlerts.forEach(alert => {
+                        // Formatear tempo para exibição
+                        let timeText;
+                        if (alert.hours_before < 1) {
+                            const minutes = Math.round(alert.hours_before * 60);
+                            timeText = `${minutes} minuto${minutes > 1 ? 's' : ''}`;
+                        } else if (alert.hours_before === 1) {
+                            timeText = '1 hora';
+                        } else {
+                            timeText = `${alert.hours_before} horas`;
+                        }
+                        
+                        let impactIcon = '⚪';
+                        let impactText = 'Baixo Impacto';
+                        
+                        if (alert.impact_level === 'high') {
+                            impactIcon = '🔴';
+                            impactText = 'Alto Impacto';
+                        } else if (alert.impact_level === 'medium') {
+                            impactIcon = '🟡';
+                            impactText = 'Médio Impacto';
+                        }
+                        
+                        html += `
+                            <div class="alert-item">
+                                <strong>${impactIcon} ${impactText}</strong> - 
+                                Alertar ${timeText} antes de TODOS os eventos desta categoria
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+                
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Erro ao carregar alertas:', error);
+                document.getElementById('alertsList').innerHTML = 
+                    '<div class="loading-state">Erro ao carregar alertas</div>';
+            }
+        }
+        
+        // Função para mostrar mensagens
+        function showMessage(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                border-radius: 12px;
+                color: white;
+                font-weight: 600;
+                z-index: 10000;
+                max-width: 400px;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+                white-space: pre-line;
+            `;
+            
+            if (type === 'success') {
+                notification.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+            } else if (type === 'error') {
+                notification.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+            } else {
+                notification.style.background = 'linear-gradient(135deg, #3498db, #2980b9)';
+            }
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Animar entrada
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Remover após 5 segundos
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

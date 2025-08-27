@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Database
+data/alerts.db
+
+# Logs
+logs/*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
+
+# PM2 files
+.pm2/
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# npm debug log
+npm-debug.log*
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache.env
+*.sqlite
+node_modules/
